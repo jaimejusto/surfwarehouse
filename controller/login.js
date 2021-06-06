@@ -3,7 +3,26 @@ const datastore = require("../models/datastore");
 const formatRenter = require("../models/renter");
 const RENTER = "RENTER";
 
+// Helper Methods
+async function addUser(userID) {
+    const userData = formatRenter.toDS(userID, null, null, null);
+    renter = await datastore.post_entity(RENTER, userData);
+    return renter;
+};
 
+function returnUser(renterInfo) {
+    let renter = datastore.fromDatastoreItem(renterInfo[0][0]);
+    let formattedRenter = formatRenter.fromDS(renter);
+    return formattedRenter;
+};
+
+function signout(req, res) {
+    res.clearCookie("session-token");
+    res.redirect("/");
+};
+
+
+// Controller Methods
 const homePage = (req, res) => {
     res.status(200).render("home", {title: "Surf Warehouse"});
 };
@@ -18,35 +37,20 @@ const oauth = (req, res) => {
     .catch(console.error);
 };
 
-const addUser = async (userID) => {
-    const userData = formatRenter.toDS(userID, null, null, null);
-    renter = await datastore.post_entity(RENTER, userData);
-    return renter;
-};
-
-const returnUser = (renterInfo) => {
-    let renter = datastore.fromDatastoreItem(renterInfo[0][0]);
-    let formattedRenter = formatRenter.fromDS(renter);
-    return formattedRenter;
-};
-
 const user = async (req, res) => {
-    const matchingUser = await datastore.get_matching_entities(RENTER, "renter_id", req.userID);
+    const matchingUser = await datastore.get_matching_entities(RENTER, "jwt_sub", req.userID);
     let renter;
-    // new user, add to DB
+    // new user
     if (matchingUser == 0) {
         renter = await addUser(req.userID);
     }
     else {
         renter = returnUser(matchingUser);
     }
+    // displays renter's datastore id number and JWT
     res.status(200).render("dashboard", {userID: renter.id, token: req.cookies["session-token"], title: "Surf Warehouse"});
 };
 
-const signout = (req, res) => {
-    res.clearCookie("session-token");
-    res.redirect("/");
-};
 
 module.exports = {
     homePage,

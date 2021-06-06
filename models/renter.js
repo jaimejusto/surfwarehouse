@@ -1,10 +1,10 @@
 /**
  * Format renter data for the datastore
  */
- const toDS = (renter_id, boards, checkout_date, return_date) => {
+ const toDS = (jwt_sub, boards, checkout_date, return_date) => {
     const nullDate = new Date(0);
     const formattedData = {
-        "renter_id": renter_id || "",
+        "jwt_sub": jwt_sub || "",
         "boards": boards || [],
         "checkout_date": checkout_date || nullDate,
         "return_date": return_date || nullDate
@@ -19,10 +19,11 @@
 const fromDS = (obj) => {
     let newObj = {};
     newObj.id = obj.id;
-    newObj.renter_id = obj.renter_id;
+    newObj.jwt_sub = obj.jwt_sub;
     newObj.boards = obj.boards;
-    newObj.checkout_date = obj.checkout_date;
-    newObj.return_date = obj.return_date;
+    newObj.checkout_date = obj.checkout_date.toLocaleDateString();
+    newObj.return_date = obj.return_date.toLocaleDateString();
+    newObj.self = `${obj.url}/${obj.id}`
     return newObj;
 };
 

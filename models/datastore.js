@@ -74,6 +74,34 @@ const datastore = new Datastore({projectId: projectID});
 };
 
 /**
+ * Gets all entities without pagination.
+ */
+const get_entities = async(kind) => {
+    let query = datastore.createQuery(kind);
+    let results = await datastore.runQuery(query);
+    return results[0];
+};
+
+/**
+ * Gets all entities with pagination.
+ */
+ const get_paginated_entities = async (kind, request) => {
+    const items_per_page = 3;
+    // make query to get 3 entities of certain kind per page
+    let query = datastore.createQuery(kind).limit(items_per_page);
+    
+
+    if (Object.keys(request.query).includes("cursor")) {
+        // retrieve results starting from cursor
+        query = query.start(decodeURIComponent(request.query.cursor));      
+    }
+    
+    // run the query
+    let items = await datastore.runQuery(query);
+    return items;
+};
+
+/**
  * Gets entitites by matching property
  */
 const get_matching_entities = async (kind, property, value) => {
@@ -109,6 +137,8 @@ module.exports = {
     post_entity,
     delete_entity,
     get_entity,
+    get_entities,
+    get_paginated_entities,
     get_matching_entities,
     two_property_filter
 };
