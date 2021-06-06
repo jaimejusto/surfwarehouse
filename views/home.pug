@@ -1,0 +1,34 @@
+extends layout.pug 
+
+append head
+    script(src="https://apis.google.com/js/platform.js" async defer)
+    meta(name="google-signin-client_id" content="647020123522-djc4t45v4l63bp9rd9i0df9oj7ea3cg9.apps.googleusercontent.com")
+block content
+    h1 Welcome
+    div(class="g-signin2" data-onsuccess="onSignIn")
+    a(href="/signout" onclick="signOut();") Sign out
+
+
+    script(type="text/javascript").
+        function onSignIn(googleUser) {
+            let id_token = googleUser.getAuthResponse().id_token;
+            console.log(id_token);
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:8080/oauth");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function() {
+                if (xhr.responseText == "verified") {
+                    signOut();
+                    location.assign("/user");
+                }
+                
+            };
+            xhr.send(JSON.stringify({token: id_token}));   
+        };
+
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+            console.log('User signed out.');
+            });
+        };

@@ -1,0 +1,33 @@
+{
+  "name": "surfwarehouse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "@google-cloud/datastore": "^6.4.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "google-auth": "0.0.1",
+    "google-auth-library": "^7.1.1",
+    "path": "^0.12.7",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaimejusto/surfwarehouse.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaimejusto/surfwarehouse/issues"
+  },
+  "homepage": "https://github.com/jaimejusto/surfwarehouse#readme"
+}
