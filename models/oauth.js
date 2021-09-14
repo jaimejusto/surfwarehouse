@@ -22,6 +22,7 @@ const checkAuthentication = (req, res, next) => {
     verifyToken(token)
     .then( (payload) => {
         req.userID = payload.sub;
+        req.userName = payload.name;
         next();
     })
     .catch( e => {

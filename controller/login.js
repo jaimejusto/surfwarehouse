@@ -1,19 +1,19 @@
 const gauth = require("../models/oauth");
 const datastore = require("../models/datastore");
-const formatRenter = require("../models/renter");
-const RENTER = "RENTER";
+const format = require("../helpers/format");
+const SURFSHOP = "SURFSHOP";
 
 // Helper Methods
-async function addUser(userID) {
-    const userData = formatRenter.toDS(userID, null, null, null);
-    renter = await datastore.post_entity(RENTER, userData);
-    return renter;
+async function addUser(userID, name) {
+    const shopData = format.surfshopToDS(name, userID, null, null);
+    const shop = await datastore.post_entity(SURFSHOP, shopData);
+    return shop;
 };
 
-function returnUser(renterInfo) {
-    let renter = datastore.fromDatastoreItem(renterInfo[0][0]);
-    let formattedRenter = formatRenter.fromDS(renter);
-    return formattedRenter;
+function returnUser(shopInfo) {
+    let shop = datastore.fromDatastoreItem(shopInfo[0][0]);
+    let formattedShop = format.surfshopFromDS(shop);
+    return formattedShop;
 };
 
 function signout(req, res) {
@@ -38,17 +38,18 @@ const oauth = (req, res) => {
 };
 
 const user = async (req, res) => {
-    const matchingUser = await datastore.get_matching_entities(RENTER, "jwt_sub", req.userID);
-    let renter;
+    const matchingUser = await datastore.get_matching_entities(SURFSHOP, "jwt_sub", req.userID);
+    let surfshop;
     // new user
-    if (matchingUser == 0) {
-        renter = await addUser(req.userID);
+    if (matchingUser.length == 0) {
+        surfshop = await addUser(req.userID, req.userName);
+        surfshop.manager = req.userName;
     }
     else {
-        renter = returnUser(matchingUser);
+        surfshop = returnUser(matchingUser);
     }
     // displays renter's datastore id number and JWT
-    res.status(200).render("dashboard", {userID: renter.id, token: req.cookies["session-token"], title: "Surf Warehouse"});
+    res.status(200).render("dashboard", {name: surfshop.manager, userID: surfshop.id, token: req.cookies["session-token"], title: "Surf Warehouse"});
 };
 
 

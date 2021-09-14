@@ -32,7 +32,24 @@ const datastore = new Datastore({projectId: projectID});
     return key;
  
 };
+/**
+ * Patch entity data. 
+ */
+ const patch_entity = async(kind, id, new_entity_data) => {
+    // gets the key for the entity
+    const key = datastore.key([kind, parseInt(id, 10)]);
 
+    // new data for entity
+    const updated_entity = {
+        "key": key,
+        "data": new_entity_data
+    };
+
+    // update the entity
+    const response = await datastore.update(updated_entity);
+    return new_entity_data;
+
+}
 /**
  * Delete an entity.
  */
@@ -59,7 +76,6 @@ const datastore = new Datastore({projectId: projectID});
     const query = datastore 
                     .createQuery(kind)
                     .filter('__key__', key);
-
     //run the query to get the entity
     const results = await datastore.runQuery(query);
     // entity doesn't exist
@@ -86,8 +102,8 @@ const get_entities = async(kind) => {
  * Gets all entities with pagination.
  */
  const get_paginated_entities = async (kind, request) => {
-    const items_per_page = 3;
-    // make query to get 3 entities of certain kind per page
+    const items_per_page = 5;
+    // make query to get 5 entities of certain kind per page
     let query = datastore.createQuery(kind).limit(items_per_page);
     
 
@@ -106,10 +122,11 @@ const get_entities = async(kind) => {
  */
 const get_matching_entities = async (kind, property, value) => {
     const query = datastore.createQuery(kind)
-                    .filter(property, value);
+                    .filter(property, value)
+    ;
     const results = await datastore.runQuery(query);
     if (results[0].length == 0) {
-        return 0;
+        return [];
     }
     else {
         return results;
@@ -119,9 +136,10 @@ const get_matching_entities = async (kind, property, value) => {
 /**
  * Get entities by filtering two properties
  */
-const two_property_filter = async (kind, property1, value1, property2, value2) => {
+const key_and_property_filter = async (kind, value1, property2, value2) => {
+    let key = datastore.key([kind, parseInt(value1, 10)]);
     const query = datastore.createQuery(kind)
-                    .filter(property1, value1)
+                    .filter("__key__", key)
                     .filter(property2, value2);
     const results = await datastore.runQuery(query);
     if (results[0].length == 0) {
@@ -140,5 +158,6 @@ module.exports = {
     get_entities,
     get_paginated_entities,
     get_matching_entities,
-    two_property_filter
+    patch_entity,
+    key_and_property_filter
 };
